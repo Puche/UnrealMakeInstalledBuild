@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Project configuration
-project(UERegistryTool 
+project(MakeInstalledBuild 
     VERSION 1.0.0
     DESCRIPTION "Unreal Engine Registry Build Tool"
     LANGUAGES CXX
@@ -16,13 +16,22 @@ if(NOT WIN32)
     message(FATAL_ERROR "This application is designed for Windows only")
 endif()
 
+# Define source files
+set(SOURCES main.cpp)
+
+# Add Windows resource file if it exists
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
+    list(APPEND SOURCES app.rc)
+    message(STATUS "Including Windows resource file with icon")
+endif()
+
 # Create the executable
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Set target properties for Windows
 set_target_properties(${PROJECT_NAME} PROPERTIES
     WIN32_EXECUTABLE FALSE  # Keep as console application
-    OUTPUT_NAME "UERegistryTool"
+    OUTPUT_NAME "MakeInstalledBuild"
 )
 
 # Compiler-specific options
@@ -49,6 +58,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         WIN32_LEAN_AND_MEAN
     )
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+    
+    # Link windres for MinGW
+    target_link_libraries(${PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
 # Installation rules (optional)
